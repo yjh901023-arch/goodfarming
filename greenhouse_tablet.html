@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>비닐하우스 시공 견적 의뢰서</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=Black+Han+Sans&display=swap" rel="stylesheet">
+<style>
+/* ══ 기본 리셋 ══ */
+:root{
+  --gd:#1a3c2a; --gm:#2d6a4f; --gl:#52b788; --gp:#b7e4c7;
+  --gbg:#f0faf4; --gray:#6b7280; --border:#d1fae5;
+  --hh:64px; /* 헤더 높이 */
+  --nh:72px; /* 하단 네비 높이 */
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans KR',sans-serif;background:#1a3c2a;color:var(--gd);}
+
+/* ══ 헤더 ══ */
+.app-header{
+  position:fixed;top:0;left:0;right:0;height:var(--hh);z-index:100;
+  background:linear-gradient(135deg,var(--gd),var(--gm));
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;
+  box-shadow:0 2px 16px rgba(0,0,0,0.25);
+}
+.app-header .logo{display:flex;align-items:center;gap:10px;}
+.app-header .logo-icon{font-size:26px;}
+.app-header .logo-text{color:white;}
+.app-header .logo-text h1{font-family:'Black Han Sans',sans-serif;font-size:18px;letter-spacing:-0.5px;line-height:1.1;}
+.app-header .logo-text p{font-size:11px;opacity:0.65;margin-top:1px;}
+.header-right{display:flex;align-items:center;gap:16px;}
+.doc-info{text-align:right;color:white;}
+.doc-info .doc-no{font-size:11px;opacity:0.55;}
+.doc-info .doc-date{font-size:12px;font-weight:600;opacity:0.85;}
+.btn-print-top{background:rgba(255,255,255,0.15);color:white;border:1.5px solid rgba(255,255,255,0.3);border-radius:10px;padding:7px 14px;font-size:12px;font-weight:700;font-family:'Noto Sans KR',sans-serif;cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;}
+.btn-print-top:hover{background:rgba(255,255,255,0.25);}
+
+/* ══ 슬라이드 스텝 인디케이터 ══ */
+.step-bar{
+  position:fixed;top:var(--hh);left:0;right:0;z-index:99;
+  background:white;border-bottom:2px solid var(--border);
+  height:52px;display:flex;align-items:center;justify-content:center;
+  gap:0;padding:0 12px;
+  box-shadow:0 1px 8px rgba(0,0,0,0.06);
+}
+.sb-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;cursor:pointer;position:relative;padding:6px 2px;}
+.sb-item::after{content:'';position:absolute;top:50%;right:0;transform:translateY(-50%);width:1px;height:20px;background:var(--border);}
+.sb-item:last-child::after{display:none;}
+.sb-dot{width:22px;height:22px;border-radius:50%;border:2px solid #e5e7eb;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#9ca3af;transition:all .3s;background:white;}
+.sb-label{font-size:9px;color:#9ca3af;font-weight:600;white-space:nowrap;}
+.sb-item.active .sb-dot{background:var(--gm);border-color:var(--gm);color:white;box-shadow:0 2px 8px rgba(45,106,79,.35);}
+.sb-item.active .sb-label{color:var(--gm);font-weight:700;}
+.sb-item.done .sb-dot{background:var(--gl);border-color:var(--gl);color:white;}
+.sb-item.done .sb-label{color:var(--gl);}
+
+/* ══ 슬라이드 컨테이너 ══ */
+.slider-outer{
+  position:fixed;
+  top:calc(var(--hh) + 52px);
+  left:0;right:0;
+  bottom:var(--nh);
+  overflow:hidden;
+}
+.slider-track{
+  display:flex;
+  height:100%;
+  transition:transform .38s cubic-bezier(.4,0,.2,1);
+  will-change:transform;
+}
+.slide{
+  flex:0 0 100%;
+  height:100%;
+  overflow-y:auto;
+  overflow-x:hidden;
+  background:var(--gbg);
+  -webkit-overflow-scrolling:touch;
+  scroll-behavior:smooth;
+}
+/* 슬라이드 내부 패딩 */
+.slide-inner{padding:20px 24px 32px;max-width:900px;margin:0 auto;}
+
+/* ══ 카드 컴포넌트 ══ */
+.card{background:white;border-radius:16px;padding:22px 22px;margin-bottom:16px;box-shadow:0 2px 12px rgba(26,60,42,0.07);border:1.5px solid var(--border);}
+.card-title{display:flex;align-items:center;gap:10px;font-size:15px;font-weight:700;color:var(--gd);margin-bottom:18px;padding-bottom:12px;border-bottom:2px solid var(--gbg);}
+.card-icon{width:34px;height:34px;border-radius:10px;background:var(--gbg);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+
+/* ══ 폼 필드 ══ */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px 20px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;}
+.field{display:flex;flex-direction:column;gap:6px;}
+.field label{font-size:11px;font-weight:700;color:var(--gray);letter-spacing:.4px;}
+.field input,.field select,.field textarea{
+  border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 14px;
+  font-size:14px;font-family:'Noto Sans KR',sans-serif;color:var(--gd);
+  outline:none;transition:border .2s,box-shadow .2s;background:white;
+  -webkit-appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--gl);box-shadow:0 0 0 3px rgba(82,183,136,.12);}
+.field textarea{resize:none;height:80px;}
+
+/* ══ 유형 카드 ══ */
+.type-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.tcard{border:2.5px solid #e5e7eb;border-radius:16px;overflow:hidden;cursor:pointer;transition:all .22s;background:white;position:relative;}
+.tcard:active{transform:scale(0.98);}
+.tcard.selected{border-color:var(--gm);box-shadow:0 0 0 3px rgba(45,106,79,.12),0 6px 20px rgba(45,106,79,.15);}
+.tcard-canvas{width:100%;height:200px;display:block;}
+.tcard-body{padding:14px 16px 16px;}
+.tcard-name{font-size:16px;font-weight:900;color:var(--gd);margin-bottom:5px;}
+.tcard-sub{font-size:11px;color:var(--gray);line-height:1.7;}
+.tcard-check{display:none;position:absolute;top:12px;right:12px;width:30px;height:30px;background:var(--gm);border-radius:50%;color:white;font-size:15px;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(45,106,79,.4);}
+.tcard.selected .tcard-check{display:flex;}
+.tcard-pop{position:absolute;top:12px;left:12px;background:rgba(245,158,11,.92);color:white;font-size:11px;font-weight:700;padding:3px 11px;border-radius:12px;}
+
+/* ══ 규격 설정 ══ */
+.viz-layout{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start;}
+.viz-canvas-wrap{border-radius:14px;border:2px solid var(--border);overflow:hidden;position:relative;background:linear-gradient(180deg,#c8ddf0,#b0d4c0);aspect-ratio:4/3;}
+.viz-canvas-wrap canvas{display:block;width:100%;height:100%;}
+.viz-labels{position:absolute;bottom:10px;left:0;right:0;display:flex;justify-content:center;gap:8px;}
+.vlbl{background:rgba(255,255,255,.88);border-radius:7px;font-size:10px;font-weight:700;color:var(--gd);padding:3px 9px;}
+.controls{display:flex;flex-direction:column;gap:14px;}
+.sfield{display:flex;flex-direction:column;gap:6px;}
+.sfield label{font-size:12px;font-weight:700;color:var(--gray);display:flex;justify-content:space-between;align-items:center;}
+.sfield label span{color:var(--gm);font-weight:900;font-size:15px;}
+input[type=range]{-webkit-appearance:none;width:100%;height:6px;border-radius:3px;background:var(--gp);outline:none;}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--gm);cursor:pointer;box-shadow:0 2px 8px rgba(45,106,79,.4);border:3px solid white;}
+.range-ends{display:flex;justify-content:space-between;font-size:10px;color:#9ca3af;margin-top:1px;}
+.dims-box{background:var(--gbg);border-radius:12px;padding:14px 16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center;border:1.5px solid var(--border);}
+.dim-item .dv{font-size:22px;font-weight:900;color:var(--gm);}
+.dim-item .dl{font-size:10px;color:var(--gray);margin-top:2px;}
+
+/* ══ 자재 선택 ══ */
+.mat-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.mat-head{font-size:12px;font-weight:700;color:var(--gray);margin-bottom:10px;letter-spacing:.4px;display:flex;align-items:center;gap:6px;}
+.mat-hint{font-size:10px;font-weight:500;color:var(--gl);}
+.mat-list{display:flex;flex-direction:column;gap:10px;}
+.mrow{display:flex;align-items:center;gap:12px;padding:13px 15px;border-radius:12px;border:1.5px solid #e5e7eb;cursor:pointer;transition:all .2s;}
+.mrow:active{transform:scale(0.98);}
+.mrow.sel{border-color:var(--gm);background:#f0faf4;}
+.mradio{width:20px;height:20px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.mrow.sel .mradio{border-color:var(--gm);}
+.mradio::after{content:'';width:10px;height:10px;border-radius:50%;background:var(--gm);opacity:0;transition:opacity .2s;}
+.mrow.sel .mradio::after{opacity:1;}
+.micon{font-size:22px;}
+.minfo{flex:1;}
+.mname{font-size:14px;font-weight:700;color:var(--gd);}
+.mdesc{font-size:10px;color:var(--gray);margin-top:2px;}
+.mbadge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:12px;white-space:nowrap;}
+.bg{background:#d1fae5;color:#065f46;}
+.bb{background:#dbeafe;color:#1e40af;}
+.by{background:#fef9c3;color:#92400e;}
+
+/* ══ 옵션 ══ */
+.opt-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.oitem{display:flex;align-items:flex-start;gap:12px;padding:14px 15px;border-radius:12px;border:1.5px solid #e5e7eb;cursor:pointer;transition:all .2s;}
+.oitem:active{transform:scale(0.98);}
+.oitem.on{border-color:var(--gm);background:#f0faf4;}
+.ochk{width:22px;height:22px;border-radius:7px;border:2px solid #d1d5db;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:white;transition:all .2s;margin-top:1px;}
+.oitem.on .ochk{background:var(--gm);border-color:var(--gm);}
+.oname{font-size:13px;font-weight:700;color:var(--gd);}
+.odesc{font-size:10px;color:var(--gray);margin-top:3px;line-height:1.5;}
+
+/* ══ 견적 요약 ══ */
+.summary-card{background:linear-gradient(135deg,var(--gd),var(--gm));border-radius:16px;padding:22px 24px;color:white;margin-bottom:16px;position:relative;overflow:hidden;}
+.summary-card::before{content:'🌿';position:absolute;right:18px;bottom:10px;font-size:72px;opacity:.09;}
+.sum-head{font-size:11px;opacity:.65;letter-spacing:1px;font-weight:700;margin-bottom:14px;}
+.sum-rows{display:flex;flex-direction:column;gap:10px;margin-bottom:18px;}
+.sum-row{display:flex;justify-content:space-between;font-size:13px;}
+.sum-row .sk{opacity:.72;}.sum-row .sv{font-weight:700;}
+.sum-divider{border:none;border-top:1px solid rgba(255,255,255,.18);margin-bottom:14px;}
+.sum-total-row{display:flex;justify-content:space-between;align-items:flex-end;}
+.total-lbl{font-size:13px;opacity:.8;}
+.total-price{font-family:'Black Han Sans',sans-serif;font-size:30px;letter-spacing:-1px;}
+.total-note{font-size:10px;opacity:.5;margin-top:3px;}
+
+/* ══ 서명 ══ */
+.sig-2col{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.sig-box{display:flex;flex-direction:column;gap:8px;}
+.sig-label{font-size:11px;font-weight:700;color:var(--gray);}
+.sig-info-val{font-size:14px;font-weight:600;color:var(--gd);padding:8px 0 6px;border-bottom:1.5px solid #e5e7eb;min-height:34px;}
+.sig-pad-wrap{position:relative;}
+.sig-pad{width:100%;height:110px;border:1.5px solid #e5e7eb;border-radius:10px;cursor:crosshair;display:block;background:#fafafa;touch-action:none;}
+.sig-clear{position:absolute;top:8px;right:8px;font-size:11px;color:var(--gray);background:white;border:1px solid #e5e7eb;border-radius:7px;padding:3px 10px;cursor:pointer;font-family:'Noto Sans KR',sans-serif;}
+.sig-date-row{display:flex;align-items:center;gap:8px;margin-top:6px;font-size:12px;color:var(--gray);}
+.sig-date-row input{border:1.5px solid #e5e7eb;border-radius:8px;padding:7px 10px;font-size:12px;color:var(--gd);outline:none;font-family:'Noto Sans KR',sans-serif;flex:1;-webkit-appearance:none;}
+.sig-notice{font-size:11px;color:var(--gray);line-height:1.7;margin-top:14px;padding:12px 16px;background:var(--gbg);border-radius:10px;border-left:3px solid var(--gl);}
+
+/* ══ 하단 내비게이션 ══ */
+.bottom-nav{
+  position:fixed;bottom:0;left:0;right:0;height:var(--nh);z-index:100;
+  background:white;border-top:2px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 24px;gap:14px;
+  box-shadow:0 -2px 16px rgba(0,0,0,0.08);
+}
+.btn-nav{
+  display:flex;align-items:center;gap:8px;
+  padding:13px 28px;border-radius:14px;
+  font-family:'Noto Sans KR',sans-serif;font-size:15px;font-weight:700;
+  cursor:pointer;border:none;transition:all .2s;
+}
+.btn-nav:active{transform:scale(0.97);}
+.btn-prev{background:var(--gbg);color:var(--gm);border:2px solid var(--border);}
+.btn-prev:disabled{opacity:0.3;pointer-events:none;}
+.btn-next{background:linear-gradient(90deg,var(--gm),var(--gl));color:white;flex:1;justify-content:center;box-shadow:0 4px 14px rgba(45,106,79,.3);}
+.btn-next:disabled{opacity:0.4;pointer-events:none;}
+.btn-submit-final{background:linear-gradient(90deg,#1a3c2a,var(--gm));color:white;flex:1;justify-content:center;box-shadow:0 4px 14px rgba(26,60,42,.3);}
+.slide-counter{font-size:12px;color:var(--gray);font-weight:600;white-space:nowrap;min-width:42px;text-align:center;}
+
+/* ══ 스와이프 힌트 ══ */
+.swipe-hint{
+  display:flex;align-items:center;justify-content:center;gap:6px;
+  font-size:11px;color:var(--gray);margin-top:8px;opacity:0.7;
+}
+
+/* ══ 유틸 ══ */
+.info-tip{font-size:11px;color:var(--gray);background:var(--gbg);border-radius:8px;padding:9px 12px;line-height:1.7;border-left:3px solid var(--gl);}
+
+@media(max-width:680px){
+  .type-grid,.viz-layout,.mat-2col,.sig-2col,.opt-grid,.grid2,.grid3{grid-template-columns:1fr;}
+  .slide-inner{padding:14px 16px 24px;}
+  .card{padding:18px 16px;}
+  .tcard-canvas{height:160px;}
+}
+</style>
+</head>
+<body>
+
+<!-- ══ 헤더 ══ -->
+<header class="app-header">
+  <div class="logo">
+    <div class="logo-icon">🌿</div>
+    <div class="logo-text">
+      <h1>비닐하우스 견적 의뢰서</h1>
+      <p>Agricultural Solution</p>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="doc-info">
+      <div class="doc-date" id="dateDisplay"></div>
+      <div class="doc-no" id="docNo"></div>
+    </div>
+    <button class="btn-print-top" onclick="window.print()">🖨️ 인쇄</button>
+  </div>
+</header>
+
+<!-- ══ 스텝 바 ══ -->
+<div class="step-bar" id="stepBar">
+  <div class="sb-item active" data-step="0" onclick="goSlide(0)">
+    <div class="sb-dot">1</div><div class="sb-label">고객정보</div>
+  </div>
+  <div class="sb-item" data-step="1" onclick="goSlide(1)">
+    <div class="sb-dot">2</div><div class="sb-label">유형선택</div>
+  </div>
+  <div class="sb-item" data-step="2" onclick="goSlide(2)">
+    <div class="sb-dot">3</div><div class="sb-label">규격설정</div>
+  </div>
+  <div class="sb-item" data-step="3" onclick="goSlide(3)">
+    <div class="sb-dot">4</div><div class="sb-label">자재선택</div>
+  </div>
+  <div class="sb-item" data-step="4" onclick="goSlide(4)">
+    <div class="sb-dot">5</div><div class="sb-label">추가옵션</div>
+  </div>
+  <div class="sb-item" data-step="5" onclick="goSlide(5)">
+    <div class="sb-dot">6</div><div class="sb-label">견적확인</div>
+  </div>
+  <div class="sb-item" data-step="6" onclick="goSlide(6)">
+    <div class="sb-dot">7</div><div class="sb-label">서명</div>
+  </div>
+</div>
+
+<!-- ══ 슬라이드 트랙 ══ -->
+<div class="slider-outer" id="sliderOuter">
+  <div class="slider-track" id="sliderTrack">
+
+    <!-- SLIDE 0: 고객 정보 -->
+    <div class="slide" id="slide0">
+      <div class="slide-inner">
+        <div class="card">
+          <div class="card-title"><div class="card-icon">👤</div>고객 기본 정보를 입력해 주세요</div>
+          <div class="grid2">
+            <div class="field"><label>성함 *</label><input id="f_name" placeholder="홍길동"></div>
+            <div class="field"><label>연락처 *</label><input id="f_phone" type="tel" placeholder="010-0000-0000"></div>
+            <div class="field"><label>이메일</label><input id="f_email" type="email" placeholder="example@email.com"></div>
+            <div class="field"><label>시공 희망 지역 *</label><input id="f_region" placeholder="예) 경기도 이천시"></div>
+            <div class="field">
+              <label>토지 현황</label>
+              <select id="f_land">
+                <option value="">선택</option>
+                <option>평지 (경사 없음)</option><option>완만한 경사지</option>
+                <option>급경사지</option><option>기존 하우스 철거 후</option><option>기타</option>
+              </select>
+            </div>
+            <div class="field">
+              <label>재배 작물 / 용도</label>
+              <select id="f_purpose">
+                <option value="">선택</option>
+                <option>채소류 (상추·시금치 등)</option><option>과채류 (딸기·토마토 등)</option>
+                <option>화훼류</option><option>과수류</option><option>버섯류</option><option>기타·다목적</option>
+              </select>
+            </div>
+            <div class="field"><label>희망 시공 시기</label><input id="f_date" type="date"></div>
+            <div class="field">
+              <label>예산 범위</label>
+              <select id="f_budget">
+                <option value="">선택</option>
+                <option>1천만원 미만</option><option>1천~3천만원</option>
+                <option>3천~5천만원</option><option>5천만~1억</option>
+                <option>1억원 이상</option><option>예산 미정</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 1: 유형 선택 -->
+    <div class="slide" id="slide1">
+      <div class="slide-inner">
+        <div class="card">
+          <div class="card-title"><div class="card-icon">🏗️</div>하우스 유형을 그림으로 선택해 주세요</div>
+          <div class="type-grid">
+            <div class="tcard selected" data-type="arch" onclick="selectType(this)">
+              <div class="tcard-pop">⭐ 가장 인기</div>
+              <div class="tcard-check">✓</div>
+              <canvas class="tcard-canvas" id="tc_arch"></canvas>
+              <div class="tcard-body">
+                <div class="tcard-name">단동 아치형</div>
+                <div class="tcard-sub">• 비닐하우스의 기본 형태<br>• 설치비 저렴, 시공 빠름<br>• 채소·과채류 재배에 적합</div>
+              </div>
+            </div>
+            <div class="tcard" data-type="multi" onclick="selectType(this)">
+              <div class="tcard-check">✓</div>
+              <canvas class="tcard-canvas" id="tc_multi"></canvas>
+              <div class="tcard-body">
+                <div class="tcard-name">연동형 (여러 동 연결)</div>
+                <div class="tcard-sub">• 단동 여러 개를 옆으로 연결<br>• 대면적 관리, 기계 작업 편리<br>• 중·대규모 농장에 적합</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 2: 규격 설정 -->
+    <div class="slide" id="slide2">
+      <div class="slide-inner">
+        <div class="card">
+          <div class="card-title"><div class="card-icon">📐</div>규격 설정 — 슬라이더를 움직이면 그림이 바뀝니다</div>
+          <div class="viz-layout">
+            <!-- 왼쪽: 캔버스 -->
+            <div>
+              <div class="viz-canvas-wrap">
+                <canvas id="mainCanvas"></canvas>
+                <div class="viz-labels">
+                  <div class="vlbl" id="lW">폭 8m</div>
+                  <div class="vlbl" id="lL">길이 30m</div>
+                  <div class="vlbl" id="lH">측고 2m</div>
+                </div>
+              </div>
+              <div class="dims-box" style="margin-top:12px;">
+                <div class="dim-item"><div class="dv" id="d_area">240</div><div class="dl">연면적 ㎡</div></div>
+                <div class="dim-item"><div class="dv" id="d_py">73</div><div class="dl">평수 (평)</div></div>
+                <div class="dim-item"><div class="dv" id="d_dong">1</div><div class="dl">동 수</div></div>
+              </div>
+            </div>
+            <!-- 오른쪽: 슬라이더 -->
+            <div class="controls">
+              <div class="sfield">
+                <label>폭 (너비) <span id="wv">8m</span></label>
+                <input type="range" id="sl_w" min="4" max="8" value="8" step="1">
+                <div class="range-ends"><span>4m</span><span>8m</span></div>
+              </div>
+              <div class="sfield">
+                <label>길이 <span id="lv">30m</span></label>
+                <input type="range" id="sl_l" min="10" max="100" value="30" step="5">
+                <div class="range-ends"><span>10m</span><span>100m</span></div>
+              </div>
+              <div class="sfield">
+                <label>측고 (기둥 높이) <span id="hv">2m</span></label>
+                <input type="range" id="sl_h" min="1" max="4.5" value="2" step="0.5">
+                <div class="range-ends"><span>1m</span><span>4.5m</span></div>
+              </div>
+              <div class="sfield">
+                <label>동 수 <span id="nv">1동</span></label>
+                <input type="range" id="sl_n" min="1" max="10" value="1" step="1">
+                <div class="range-ends"><span>1동</span><span>10동</span></div>
+              </div>
+              <div class="info-tip">🧍 사람(170cm)이 함께 표시됩니다<br>폭·측고 조절로 실제 공간감을 확인해보세요</div>
+            </div>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="field">
+              <label>직접 입력 (정확한 치수 아실 경우)</label>
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;margin-top:4px;">
+                <input class="field input" placeholder="폭(m)" id="ex_w" type="number" style="border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;">
+                <input class="field input" placeholder="길이(m)" id="ex_l" type="number" style="border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;">
+                <input class="field input" placeholder="측고(m)" id="ex_h" type="number" style="border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;">
+                <input class="field input" placeholder="동수" id="ex_n" type="number" style="border:1.5px solid #e5e7eb;border-radius:10px;padding:10px 12px;font-size:13px;font-family:'Noto Sans KR',sans-serif;outline:none;">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 3: 자재 선택 -->
+    <div class="slide" id="slide3">
+      <div class="slide-inner">
+        <div class="card">
+          <div class="card-title"><div class="card-icon">🔩</div>골조 및 피복 자재를 선택해 주세요</div>
+          <div class="mat-2col">
+            <div>
+              <div class="mat-head">📦 골조 자재 <span class="mat-hint" id="frame-type-hint">(단동형 선택됨)</span></div>
+              <div class="mat-list" id="frameMats">
+                <div class="mrow sel" data-mat="pipe25" onclick="selMat('frame',this)">
+                  <div class="mradio"></div><div class="micon">⚙️</div>
+                  <div class="minfo"><div class="mname">25mm 원형 파이프</div><div class="mdesc">소형 단동에 적합, 경제적·경량</div></div>
+                  <div class="mbadge bg">기본</div>
+                </div>
+                <div class="mrow" data-mat="pipe32" onclick="selMat('frame',this)">
+                  <div class="mradio"></div><div class="micon">🔩</div>
+                  <div class="minfo"><div class="mname">32mm 원형 파이프</div><div class="mdesc">강도 높음, 넓은 단동에 권장</div></div>
+                  <div class="mbadge bb">추천</div>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="mat-head">🧊 피복 자재</div>
+              <div class="mat-list" id="coverMats">
+                <div class="mrow sel" data-mat="pe" onclick="selMat('cover',this)">
+                  <div class="mradio"></div><div class="micon">🌿</div>
+                  <div class="minfo"><div class="mname">PE 필름 (0.1~0.15mm)</div><div class="mdesc">가장 일반적, 보온·경제성 균형</div></div>
+                  <div class="mbadge bg">추천</div>
+                </div>
+                <div class="mrow" data-mat="po" onclick="selMat('cover',this)">
+                  <div class="mradio"></div><div class="micon">☀️</div>
+                  <div class="minfo"><div class="mname">PO 필름 (0.1~0.15mm)</div><div class="mdesc">보온·내구성 우수, 광선 투과율 높음</div></div>
+                  <div class="mbadge bb">고급형</div>
+                </div>
+                <div class="mrow" data-mat="shade" onclick="selMat('cover',this)">
+                  <div class="mradio"></div><div class="micon">🌑</div>
+                  <div class="minfo"><div class="mname">차광필름 (불투명)</div><div class="mdesc">빛 차단, 버섯·엽채류 특수 재배용</div></div>
+                  <div class="mbadge by">특수형</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 4: 추가 옵션 -->
+    <div class="slide" id="slide4">
+      <div class="slide-inner">
+        <div class="card">
+          <div class="card-title"><div class="card-icon">⚡</div>필요한 추가 옵션을 선택해 주세요</div>
+          <div class="opt-grid">
+            <div class="oitem" onclick="togOpt(this)" data-p="150"><div class="ochk">✓</div><div><div class="oname">🌡️ 난방 시스템</div><div class="odesc">온수보일러 / 온풍기 설치</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="80"><div class="ochk">✓</div><div><div class="oname">💨 환기 시스템</div><div class="odesc">천창·측창 자동개폐, 환풍기</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="120"><div class="ochk">✓</div><div><div class="oname">💧 관수·점적 시스템</div><div class="odesc">점적관수, 스프링클러 설비</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="60"><div class="ochk">✓</div><div><div class="oname">🌫️ 차광 스크린</div><div class="odesc">차광망, 보온커튼 (자동/수동)</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="200"><div class="ochk">✓</div><div><div class="oname">🤖 스마트팜 자동화</div><div class="odesc">센서·앱 원격 제어 시스템</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="40"><div class="ochk">✓</div><div><div class="oname">💡 전기·조명 설비</div><div class="odesc">내부 조명 및 전기 배선</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="90"><div class="ochk">✓</div><div><div class="oname">🚪 방충망·방조망</div><div class="odesc">측면 방충, 방조망 설치</div></div></div>
+            <div class="oitem" onclick="togOpt(this)" data-p="70"><div class="ochk">✓</div><div><div class="oname">🌊 배수·바닥 정지</div><div class="odesc">부지 정지, 배수로, 방초매트</div></div></div>
+          </div>
+          <div style="margin-top:16px;">
+            <div class="field"><label>기타 요청 사항</label>
+            <textarea id="f_memo" placeholder="입구 방향, 특수 작물 조건, 기존 시설 철거, 전기 인입 필요 등 자유롭게 적어주세요"></textarea></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 5: 견적 확인 -->
+    <div class="slide" id="slide5">
+      <div class="slide-inner">
+        <div class="summary-card">
+          <div class="sum-head">📊 예상 견적 요약 — 현장 확인 후 정확한 금액 안내</div>
+          <div class="sum-rows">
+            <div class="sum-row"><span class="sk">하우스 유형</span><span class="sv" id="s_type">단동 아치형</span></div>
+            <div class="sum-row"><span class="sk">규격</span><span class="sv" id="s_size">폭 8m × 길이 30m × 측고 2m (1동)</span></div>
+            <div class="sum-row"><span class="sk">연면적</span><span class="sv" id="s_area">240㎡ / 73평</span></div>
+            <div class="sum-row"><span class="sk">골조 자재</span><span class="sv" id="s_frame">25mm 원형 파이프</span></div>
+            <div class="sum-row"><span class="sk">피복 자재</span><span class="sv" id="s_cover">PE 필름 (0.1~0.15mm)</span></div>
+            <div class="sum-row"><span class="sk">추가 옵션</span><span class="sv" id="s_opts">없음</span></div>
+          </div>
+          <hr class="sum-divider">
+          <div class="sum-total-row">
+            <div><div class="total-lbl">예상 견적 범위</div><div class="total-note">* 현장 방문 후 정확한 금액 확정 / 부가세 별도</div></div>
+            <div style="text-align:right"><div class="total-price" id="s_price">—</div></div>
+          </div>
+        </div>
+        <!-- 고객 확인 정보 카드 -->
+        <div class="card">
+          <div class="card-title"><div class="card-icon">👤</div>의뢰인 확인</div>
+          <div class="grid2" style="gap:10px 20px;">
+            <div><div style="font-size:11px;color:var(--gray);margin-bottom:3px;">성함</div><div style="font-size:14px;font-weight:700;" id="cv_name">—</div></div>
+            <div><div style="font-size:11px;color:var(--gray);margin-bottom:3px;">연락처</div><div style="font-size:14px;font-weight:700;" id="cv_phone">—</div></div>
+            <div><div style="font-size:11px;color:var(--gray);margin-bottom:3px;">지역</div><div style="font-size:14px;font-weight:700;" id="cv_region">—</div></div>
+            <div><div style="font-size:11px;color:var(--gray);margin-bottom:3px;">용도</div><div style="font-size:14px;font-weight:700;" id="cv_purpose">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SLIDE 6: 서명 -->
+    <div class="slide" id="slide6">
+      <div class="slide-inner">
+        <div class="card">
+          <div class="card-title"><div class="card-icon">✍️</div>서명 및 최종 확인</div>
+          <!-- 고객·업체 정보 -->
+          <div class="sig-2col" style="margin-bottom:20px;">
+            <div class="sig-box">
+              <div class="sig-label">의뢰인 (고객)</div>
+              <div class="sig-info-val" id="sig_name">—</div>
+              <div style="font-size:11px;color:var(--gray);margin-top:3px;">연락처: <span id="sig_phone">—</span></div>
+              <div style="font-size:11px;color:var(--gray);">시공 지역: <span id="sig_region">—</span></div>
+            </div>
+            <div class="sig-box">
+              <div class="sig-label">시공 업체</div>
+              <div class="sig-info-val">○○○ 비닐하우스 시공</div>
+              <div style="font-size:11px;color:var(--gray);margin-top:3px;">대표: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+              <div style="font-size:11px;color:var(--gray);">사업자번호: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            </div>
+          </div>
+          <!-- 서명 패드 -->
+          <div class="sig-2col">
+            <div class="sig-box">
+              <div class="sig-label">고객 서명</div>
+              <div class="sig-pad-wrap">
+                <canvas class="sig-pad" id="sigPad1"></canvas>
+                <button class="sig-clear" onclick="clearSig('sigPad1')">지우기</button>
+              </div>
+              <div class="sig-date-row"><span>서명일:</span><input type="date" id="sig_date1"></div>
+            </div>
+            <div class="sig-box">
+              <div class="sig-label">담당자 서명 (업체)</div>
+              <div class="sig-pad-wrap">
+                <canvas class="sig-pad" id="sigPad2"></canvas>
+                <button class="sig-clear" onclick="clearSig('sigPad2')">지우기</button>
+              </div>
+              <div class="sig-date-row"><span>서명일:</span><input type="date" id="sig_date2"></div>
+            </div>
+          </div>
+          <div class="sig-notice">
+            📋 본 견적 의뢰서는 <strong>현장 방문 측량 전 참고용</strong>이며, 정확한 견적 금액은 현장 확인 후 별도 안내됩니다.<br>
+            서명 후 제출하시면 담당자가 영업일 기준 1~2일 내 연락드립니다. &nbsp; 📞 010-0000-0000
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /slider-track -->
+</div><!-- /slider-outer -->
+
+<!-- ══ 하단 네비게이션 ══ -->
+<div class="bottom-nav">
+  <button class="btn-nav btn-prev" id="btnPrev" onclick="prevSlide()" disabled>← 이전</button>
+  <div class="slide-counter" id="slideCounter">1 / 7</div>
+  <button class="btn-nav btn-next" id="btnNext" onclick="nextSlide()">다음 →</button>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════
+//  공통 드로잉 헬퍼 — 전문 기술도면 스타일
+// ══════════════════════════════════════════════════════
+const DPR = window.devicePixelRatio || 1;
+
+// 색상 팔레트 (도면 스타일)
+const C = {
+  bg:      '#f5f7f2',   // 연한 크림 배경
+  bgGrid:  'rgba(45,106,79,0.06)',
+  ground:  '#8a9e7a',
+  groundD: '#6a7e5a',
+  soil:    '#c4a97a',
+  steel:   '#4a5568',   // 철관 진회색
+  steelH:  '#8fa8c8',   // 철관 하이라이트
+  steelS:  '#2d3748',   // 철관 그림자
+  vinyl:   'rgba(200,230,255,0.38)',  // 비닐 반투명
+  vinylE:  '#2d6a4f',   // 비닐 외곽
+  vinylS:  'rgba(255,255,255,0.7)',   // 비닐 광택
+  dim:     '#2d6a4f',   // 치수선
+  dimTxt:  '#1a3c2a',
+  label:   '#1a3c2a',
+  labelBg: 'rgba(240,250,244,0.95)',
+  gutter:  '#556b5a',   // 홈통
+  found:   '#7a7060',   // 기초
+  door:    'rgba(200,225,210,0.5)',
+  person:  '#2d3748',
+  personH: '#4a5568',
+};
+
+// 배경 + 격자
+function drawBackground(c,W,H){
+  c.fillStyle=C.bg; c.fillRect(0,0,W,H);
+  // 격자
+  c.save(); c.strokeStyle=C.bgGrid; c.lineWidth=0.5;
+  const step=Math.round(Math.min(W,H)/10);
+  for(let x=0;x<W;x+=step){c.beginPath();c.moveTo(x,0);c.lineTo(x,H);c.stroke();}
+  for(let y=0;y<H;y+=step){c.beginPath();c.moveTo(0,y);c.lineTo(W,y);c.stroke();}
+  c.restore();
+}
+
+// 지면 — 도면 해칭 스타일
+function drawGround(c,W,H,gy){
+  // 지면선 위 얕은 흙
+  c.save();
+  c.fillStyle=C.groundD; c.fillRect(0,gy,W,H-gy);
+  // 지면 해칭 (엔지니어링 도면 표현)
+  c.strokeStyle='rgba(80,100,70,0.35)'; c.lineWidth=0.8;
+  const hatchH=Math.min(18,H-gy);
+  for(let x=-hatchH;x<W+hatchH;x+=10){
+    c.beginPath();c.moveTo(x,gy);c.lineTo(x+hatchH,gy+hatchH);c.stroke();
+  }
+  // 지면선 (굵은 선)
+  c.strokeStyle=C.steel; c.lineWidth=2.5;
+  c.beginPath();c.moveTo(0,gy);c.lineTo(W,gy);c.stroke();
+  c.restore();
+}
+
+// 줄기초 (콘크리트 해칭)
+function drawFoundation(c,lx,rx,gy){
+  const fh=10, fw=rx-lx+10;
+  c.save();
+  c.fillStyle='#b0a898'; c.fillRect(lx-5,gy,fw,fh);
+  // 콘크리트 해칭
+  c.strokeStyle='rgba(0,0,0,0.15)'; c.lineWidth=0.8;
+  for(let x=lx-5;x<rx+5;x+=8){
+    c.beginPath();c.moveTo(x,gy);c.lineTo(x+fh,gy+fh);c.stroke();
+  }
+  c.strokeStyle=C.steelS; c.lineWidth=1.5;
+  c.strokeRect(lx-5,gy,fw,fh);
+  c.restore();
+}
+
+// 철관 기둥 (파이프 단면 표현)
+function drawPillar(c,x,wallTop,gy,thick=5){
+  c.save();
+  // 파이프 본체
+  const g=c.createLinearGradient(x-thick,0,x+thick*2,0);
+  g.addColorStop(0,C.steelS);
+  g.addColorStop(0.25,C.steelH);
+  g.addColorStop(0.55,'#c8d8e8');
+  g.addColorStop(0.8,C.steelH);
+  g.addColorStop(1,C.steelS);
+  c.fillStyle=g;
+  c.fillRect(x-thick/2,wallTop,thick,gy-wallTop);
+  // 기둥 테두리
+  c.strokeStyle=C.steelS; c.lineWidth=0.8;
+  c.strokeRect(x-thick/2,wallTop,thick,gy-wallTop);
+  // 베이스 플레이트
+  c.fillStyle=C.steel;
+  c.fillRect(x-thick*1.3,gy-5,thick*2.6,5);
+  c.strokeRect(x-thick*1.3,gy-5,thick*2.6,5);
+  // 앵커 볼트 점
+  c.fillStyle=C.steelS;
+  [x-thick*0.9, x+thick*0.9].forEach(bx=>{
+    c.beginPath();c.arc(bx,gy-2.5,1.2,0,Math.PI*2);c.fill();
+  });
+  c.restore();
+}
+
+// 비닐 필름 아치 (고급 렌더링)
+function drawVinylArch(c,lx,rx,wallTop,archH,alpha=1){
+  const hw=rx-lx, cx=(lx+rx)/2;
+  const peakY=wallTop-archH*1.28;
+  c.save();
+
+  // 비닐 채움 (3D 느낌 그라데이션)
+  c.beginPath();
+  c.moveTo(lx,wallTop);
+  c.bezierCurveTo(lx,peakY,rx,peakY,rx,wallTop);
+  c.closePath();
+  const fg=c.createLinearGradient(lx,peakY,rx,wallTop+archH*.5);
+  fg.addColorStop(0,`rgba(210,235,255,${alpha*0.55})`);
+  fg.addColorStop(0.3,`rgba(230,245,255,${alpha*0.42})`);
+  fg.addColorStop(0.7,`rgba(215,238,250,${alpha*0.30})`);
+  fg.addColorStop(1,`rgba(195,230,240,${alpha*0.18})`);
+  c.fillStyle=fg; c.fill();
+
+  // 서까래 파이프 (실제 구조선)
+  c.strokeStyle=`rgba(74,85,104,${alpha*0.45})`; c.lineWidth=1.2;
+  const rafterCount=6;
+  for(let i=0;i<=rafterCount;i++){
+    const t=i/rafterCount;
+    const rx2=lx+hw*t;
+    const ry=peakY+(wallTop-peakY)*Math.pow(Math.abs(t*2-1),0.7);
+    c.beginPath();c.moveTo(rx2,wallTop);c.lineTo(rx2,ry);c.stroke();
+  }
+
+  // 수평 퍼린 (purlins) 가로대
+  c.strokeStyle=`rgba(74,85,104,${alpha*0.35})`; c.lineWidth=1;
+  [0.3,0.6,0.85].forEach(ratio=>{
+    const y=wallTop-archH*ratio;
+    // 아치 곡선에서 해당 y의 x 범위 계산
+    const angleY=(wallTop-y)/(archH*1.28);
+    const halfW=hw/2*Math.sqrt(Math.max(0,1-Math.pow(1-angleY,2)*0.5));
+    c.beginPath();c.moveTo(cx-halfW,y);c.lineTo(cx+halfW,y);c.stroke();
+  });
+
+  // 아치 외곽 파이프 (두꺼운 외형선)
+  c.beginPath();
+  c.moveTo(lx,wallTop);
+  c.bezierCurveTo(lx,peakY,rx,peakY,rx,wallTop);
+  const og=c.createLinearGradient(lx,peakY,rx,wallTop);
+  og.addColorStop(0,`rgba(45,106,79,${alpha*0.9})`);
+  og.addColorStop(0.5,`rgba(60,130,90,${alpha*0.75})`);
+  og.addColorStop(1,`rgba(45,106,79,${alpha*0.9})`);
+  c.strokeStyle=og; c.lineWidth=2.8;
+  c.shadowColor=`rgba(0,0,0,0.15)`; c.shadowBlur=3; c.stroke(); c.shadowBlur=0;
+
+  // 비닐 광택 반사 (전문적 하이라이트)
+  c.beginPath();
+  c.moveTo(cx-hw*0.22,wallTop-archH*0.28);
+  c.bezierCurveTo(cx-hw*0.18,wallTop-archH*0.7,cx-hw*0.08,wallTop-archH*1.05,cx-hw*0.02,wallTop-archH*1.18);
+  c.strokeStyle=`rgba(255,255,255,${alpha*0.6})`; c.lineWidth=5; c.lineCap='round'; c.stroke();
+  // 보조 하이라이트
+  c.beginPath();
+  c.moveTo(cx-hw*0.08,wallTop-archH*0.18);
+  c.bezierCurveTo(cx-hw*0.06,wallTop-archH*0.45,cx-hw*0.01,wallTop-archH*0.72,cx+hw*0.02,wallTop-archH*0.88);
+  c.strokeStyle=`rgba(255,255,255,${alpha*0.3})`; c.lineWidth=2.5; c.stroke();
+
+  c.restore();
+}
+
+// 측벽 비닐 (수직 구간)
+function drawVinylWall(c,lx,rx,wallTop,gy){
+  c.save();
+  // 측벽 필름 채움
+  const wg=c.createLinearGradient(lx,wallTop,rx,gy);
+  wg.addColorStop(0,'rgba(215,238,255,0.40)');
+  wg.addColorStop(1,'rgba(195,230,240,0.18)');
+  c.fillStyle=wg; c.fillRect(lx,wallTop,rx-lx,gy-wallTop);
+  // 비닐 밴드 선 (수평 고정선)
+  c.strokeStyle='rgba(74,106,80,0.20)'; c.lineWidth=0.8; c.setLineDash([5,4]);
+  for(let i=1;i<4;i++){
+    const wy=wallTop+(gy-wallTop)*(i/4);
+    c.beginPath();c.moveTo(lx,wy);c.lineTo(rx,wy);c.stroke();
+  }
+  c.setLineDash([]);
+  c.restore();
+}
+
+// 미닫이 출입문
+function drawDoor(c,cx,wallTop,gy,dw){
+  const dh=gy-wallTop, dx=cx-dw/2;
+  c.save();
+  // 문틀
+  c.fillStyle=C.door; c.fillRect(dx,wallTop,dw,dh);
+  // 알루미늄 프레임
+  c.strokeStyle='#4a7060'; c.lineWidth=2.5; c.strokeRect(dx,wallTop,dw,dh);
+  // 중앙 분리선
+  c.lineWidth=1.2; c.beginPath();c.moveTo(cx,wallTop+6);c.lineTo(cx,gy-2);c.stroke();
+  // 상단 가로대
+  c.beginPath();c.moveTo(dx+3,wallTop+dh*0.12);c.lineTo(dx+dw-3,wallTop+dh*0.12);c.stroke();
+  // 손잡이
+  const hy=wallTop+dh*0.52;
+  [cx-dw*0.18, cx+dw*0.18].forEach((hx,i)=>{
+    c.fillStyle='#6a8878';
+    c.beginPath();c.roundRect(hx-(i?1.5:3),hy-5,(i?3:1.5),10,2);c.fill();
+    c.strokeStyle='#4a6060';c.lineWidth=0.8;c.stroke();
+  });
+  c.restore();
+}
+
+// 빗물 홈통 (연동형)
+function drawGutter(c,x,wallTop,wallH){
+  c.save();
+  const gw=7,gh=wallH*0.45;
+  // 홈통 본체
+  const gg=c.createLinearGradient(x-gw/2,0,x+gw/2,0);
+  gg.addColorStop(0,'#3a5040');gg.addColorStop(0.4,'#6a9070');gg.addColorStop(1,'#3a5040');
+  c.fillStyle=gg; c.fillRect(x-gw/2,wallTop-3,gw,gh+3);
+  c.strokeStyle='#2a4030'; c.lineWidth=1;
+  c.strokeRect(x-gw/2,wallTop-3,gw,gh+3);
+  // 볼트
+  [wallTop+gh*0.25,wallTop+gh*0.75].forEach(by=>{
+    c.fillStyle='#8ab090';
+    c.beginPath();c.arc(x,by,2,0,Math.PI*2);c.fill();
+  });
+  c.restore();
+}
+
+// 치수선 (도면 스타일)
+function drawDimLine(c,x1,y1,x2,y2,label,side='auto'){
+  c.save();
+  c.strokeStyle=C.dim; c.fillStyle=C.dimTxt;
+  c.lineWidth=1; c.font='bold 9px Noto Sans KR'; c.textAlign='center';
+  const isV=Math.abs(x1-x2)<5;
+  if(isV){
+    // 수직 치수선
+    const x=x1;
+    c.setLineDash([3,3]);
+    c.beginPath();c.moveTo(x,y1);c.lineTo(x,y2);c.stroke();
+    c.setLineDash([]);
+    // 화살표
+    [[x,y1,-1],[x,y2,1]].forEach(([ax,ay,d])=>{
+      c.beginPath();c.moveTo(ax,ay);c.lineTo(ax-4,ay+d*8);c.lineTo(ax+4,ay+d*8);c.closePath();
+      c.fillStyle=C.dim;c.fill();
+    });
+    // 라벨 배경
+    const ly=(y1+y2)/2;
+    const tw=c.measureText(label).width+10;
+    c.fillStyle=C.labelBg;
+    c.fillRect(x-tw/2,ly-9,tw,15);
+    c.fillStyle=C.dimTxt;c.fillText(label,x,ly+2);
+  } else {
+    // 수평 치수선
+    const y=y1;
+    c.setLineDash([3,3]);
+    c.beginPath();c.moveTo(x1,y);c.lineTo(x2,y);c.stroke();
+    c.setLineDash([]);
+    [[x1,y,1],[x2,y,-1]].forEach(([ax,ay,d])=>{
+      c.beginPath();c.moveTo(ax,ay);c.lineTo(ax+d*8,ay-4);c.lineTo(ax+d*8,ay+4);c.closePath();
+      c.fillStyle=C.dim;c.fill();
+    });
+    const lx=(x1+x2)/2;
+    const tw=c.measureText(label).width+10;
+    c.fillStyle=C.labelBg;
+    c.fillRect(lx-tw/2,y+4,tw,14);
+    c.fillStyle=C.dimTxt;c.fillText(label,lx,y+14);
+  }
+  c.restore();
+}
+
+// 도면 타이틀 태그
+function drawTitleTag(c,W,H,title,sub){
+  c.save();
+  // 테두리 박스
+  const bw=W*0.42,bh=28,bx=W-bw-8,by=8;
+  c.fillStyle='rgba(240,250,244,0.95)';
+  c.strokeStyle='#2d6a4f';c.lineWidth=1.5;
+  c.beginPath();c.roundRect(bx,by,bw,bh,4);c.fill();c.stroke();
+  // 타이틀
+  c.fillStyle='#1a3c2a';c.font='bold 11px Noto Sans KR';c.textAlign='left';
+  c.fillText(title,bx+8,by+12);
+  c.fillStyle='#4a7060';c.font='9px Noto Sans KR';
+  c.fillText(sub,bx+8,by+23);
+  c.restore();
+}
+
+// ══════════════════════════════════════════════════════
+//  유형 카드 — 단동 아치형 (전문 도면)
+// ══════════════════════════════════════════════════════
+function paintTcardArch(c,W,H){
+  drawBackground(c,W,H);
+  const gy=H*.76, wallH=H*.30, archH=H*.30, hw=W*.70;
+  const lx=(W-hw)/2, rx=(W+hw)/2, cx=W/2, wallTop=gy-wallH;
+
+  drawGround(c,W,H,gy);
+  drawVinylWall(c,lx,rx,wallTop,gy);
+  drawVinylArch(c,lx,rx,wallTop,archH);
+
+  // 기둥 (5개 - 외곽+내부)
+  const pillarXs=[lx, lx+hw*.25, cx, lx+hw*.75, rx];
+  pillarXs.forEach(px=>drawPillar(c,px,wallTop,gy,5));
+
+  // 외곽 측벽선
+  c.save(); c.strokeStyle=C.vinylE; c.lineWidth=2.5;
+  c.beginPath();c.moveTo(lx,wallTop);c.lineTo(lx,gy);c.stroke();
+  c.beginPath();c.moveTo(rx,wallTop);c.lineTo(rx,gy);c.stroke();
+  c.restore();
+
+  drawFoundation(c,lx,rx,gy);
+  drawDoor(c,cx,wallTop,gy,hw*.13);
+
+  // 치수선
+  drawDimLine(c,lx-14,wallTop,lx-14,gy,'측고','v');
+  drawDimLine(c,lx,gy+14,rx,gy+14,'폭','h');
+
+  drawTitleTag(c,W,H,'단동 아치형','Single-span Arch');
+}
+
+// ══════════════════════════════════════════════════════
+//  유형 카드 — 연동형 (전문 도면)
+// ══════════════════════════════════════════════════════
+function paintTcardMulti(c,W,H){
+  drawBackground(c,W,H);
+  const gy=H*.76, wallH=H*.27, archH=H*.24, spans=3;
+  const tw=W*.88, sx=(W-tw)/2, sw=tw/spans, wallTop=gy-wallH;
+
+  drawGround(c,W,H,gy);
+
+  // 스팬별 그리기
+  for(let s=0;s<spans;s++){
+    const slx=sx+s*sw, srx=slx+sw;
+    drawVinylWall(c,slx,srx,wallTop,gy);
+    drawVinylArch(c,slx,srx,wallTop,archH, s===1?1:0.82);
+    if(s<spans-1) drawGutter(c,srx,wallTop,wallH);
+  }
+
+  // 기둥 (외곽+공유)
+  [sx,sx+sw,sx+2*sw,sx+tw].forEach(px=>drawPillar(c,px,wallTop,gy,5));
+
+  // 외곽 측벽선
+  c.save(); c.strokeStyle=C.vinylE; c.lineWidth=2.5;
+  c.beginPath();c.moveTo(sx,wallTop);c.lineTo(sx,gy);c.stroke();
+  c.beginPath();c.moveTo(sx+tw,wallTop);c.lineTo(sx+tw,gy);c.stroke();
+  c.restore();
+
+  drawFoundation(c,sx,sx+tw,gy);
+  drawDoor(c,sx+sw*1.5,wallTop,gy,sw*.22);
+
+  drawDimLine(c,sx-14,wallTop,sx-14,gy,'측고','v');
+  drawDimLine(c,sx,gy+14,sx+sw,gy+14,'1동 폭','h');
+
+  drawTitleTag(c,W,H,'연동형 (3동)','Multi-span Connected');
+}
+
+// ══════════════════════════════════════════════════════
+//  규격 미리보기 — 사람 포함 전문 도면
+// ══════════════════════════════════════════════════════
+let gW=8,gL=30,gH=2,gN=1,gType='arch';
+const W_MIN=4,W_MAX=8,H_MIN=1,H_MAX=4.5;
+
+function drawMainScene(c,W,H){
+  drawBackground(c,W,H);
+
+  const wR=(gW-W_MIN)/(W_MAX-W_MIN);
+  const hR=(gH-H_MIN)/(H_MAX-H_MIN);
+  const gy=H*.80;
+  const hw=W*.32+wR*(W*.38);
+  const wallH=H*.13+hR*(H*.34);
+  const archH=hw*.32;
+  const lx=(W-hw)/2, rx=(W+hw)/2, cx=W/2, wallTop=gy-wallH;
+
+  drawGround(c,W,H,gy);
+
+  if(gType==='arch'){
+    drawVinylWall(c,lx,rx,wallTop,gy);
+    drawVinylArch(c,lx,rx,wallTop,archH);
+    [lx,lx+hw*.25,cx,lx+hw*.75,rx].forEach(px=>drawPillar(c,px,wallTop,gy,4));
+    c.save(); c.strokeStyle=C.vinylE; c.lineWidth=2.2;
+    c.beginPath();c.moveTo(lx,wallTop);c.lineTo(lx,gy);c.stroke();
+    c.beginPath();c.moveTo(rx,wallTop);c.lineTo(rx,gy);c.stroke();
+    c.restore();
+    drawFoundation(c,lx,rx,gy);
+    drawDoor(c,cx,wallTop,gy,hw*.13);
+  } else {
+    const spans=3, sw=hw/spans;
+    for(let s=0;s<spans;s++){
+      const slx=lx+s*sw, srx=slx+sw;
+      drawVinylWall(c,slx,srx,wallTop,gy);
+      drawVinylArch(c,slx,srx,wallTop,archH/spans*1.1,s===1?1:.82);
+      if(s<spans-1) drawGutter(c,srx,wallTop,wallH);
+    }
+    [lx,lx+hw/3,lx+hw*2/3,rx].forEach(px=>drawPillar(c,px,wallTop,gy,4));
+    c.save(); c.strokeStyle=C.vinylE; c.lineWidth=2;
+    c.beginPath();c.moveTo(lx,wallTop);c.lineTo(lx,gy);c.stroke();
+    c.beginPath();c.moveTo(rx,wallTop);c.lineTo(rx,gy);c.stroke();
+    c.restore();
+    drawFoundation(c,lx,rx,gy);
+    drawDoor(c,cx,wallTop,gy,hw*.09);
+  }
+
+  drawPerson(c,gy,wallH,hw,lx,rx);
+
+  // 치수선 (도면 스타일)
+  drawDimLine(c,lx-16,wallTop,lx-16,gy,gH+'m','v');
+  drawDimLine(c,lx,gy+16,rx,gy+16,gW+'m','h');
+}
+
+// 전문적인 사람 실루엣 (도면 아이콘 스타일)
+function drawPerson(c,gy,wallH_px,hw,lx,rx){
+  const pxPerM=wallH_px/gH;
+  const personPx=1.70*pxPerM;
+  if(personPx<14)return;
+
+  const px=rx-hw*0.14, footY=gy, headY=footY-personPx;
+  const headR=personPx*0.09;
+  const shoulderY=headY+headR*2.2;
+  const hipY=shoulderY+personPx*0.32;
+  const kneeY=hipY+personPx*0.26;
+
+  c.save();
+
+  // 그림자
+  c.globalAlpha=0.12;
+  c.beginPath();c.ellipse(px,footY+1,personPx*0.09,3,0,0,Math.PI*2);
+  c.fillStyle='#000';c.fill();c.globalAlpha=1;
+
+  // 실루엣 전체 fill (도면 아이콘 스타일)
+  c.fillStyle='rgba(45,85,104,0.82)';
+
+  // 머리
+  c.beginPath();c.arc(px,headY+headR,headR,0,Math.PI*2);c.fill();
+
+  // 몸통 (사다리꼴)
+  c.beginPath();
+  c.moveTo(px-personPx*0.1,shoulderY);
+  c.lineTo(px+personPx*0.1,shoulderY);
+  c.lineTo(px+personPx*0.07,hipY);
+  c.lineTo(px-personPx*0.07,hipY);
+  c.closePath();c.fill();
+
+  // 팔 (양쪽)
+  c.strokeStyle='rgba(45,85,104,0.82)';c.lineWidth=Math.max(2,personPx*0.055);c.lineCap='round';
+  c.beginPath();c.moveTo(px-personPx*0.1,shoulderY+personPx*0.04);
+  c.lineTo(px-personPx*0.18,hipY-personPx*0.05);c.stroke();
+  c.beginPath();c.moveTo(px+personPx*0.1,shoulderY+personPx*0.04);
+  c.lineTo(px+personPx*0.18,hipY-personPx*0.05);c.stroke();
+
+  // 다리
+  c.lineWidth=Math.max(2.5,personPx*0.065);
+  c.beginPath();c.moveTo(px-personPx*0.045,hipY);c.lineTo(px-personPx*0.055,kneeY);c.lineTo(px-personPx*0.06,footY);c.stroke();
+  c.beginPath();c.moveTo(px+personPx*0.045,hipY);c.lineTo(px+personPx*0.055,kneeY);c.lineTo(px+personPx*0.06,footY);c.stroke();
+
+  // 170cm 치수선 스타일 표기
+  c.strokeStyle='rgba(45,85,104,0.5)'; c.lineWidth=1; c.setLineDash([2,3]);
+  c.beginPath();c.moveTo(px+personPx*0.22,headY);c.lineTo(px+personPx*0.22,footY);c.stroke();
+  c.setLineDash([]);
+  // 화살표
+  [[px+personPx*0.22,headY,1],[px+personPx*0.22,footY,-1]].forEach(([ax,ay,d])=>{
+    c.fillStyle='rgba(45,85,104,0.6)';
+    c.beginPath();c.moveTo(ax,ay);c.lineTo(ax-3,ay+d*6);c.lineTo(ax+3,ay+d*6);c.closePath();c.fill();
+  });
+  // 라벨
+  const fs=Math.max(8,personPx*0.1);
+  c.font=`bold ${fs}px Noto Sans KR`;c.textAlign='center';
+  const labelX=px+personPx*0.22+14, labelY=(headY+footY)/2;
+  const lw=c.measureText('170cm').width+8;
+  c.fillStyle='rgba(240,250,244,0.92)';
+  c.fillRect(labelX-lw/2,labelY-8,lw,14);
+  c.fillStyle='#1a3c2a';
+  c.fillText('170cm',labelX,labelY+3);
+  c.restore();
+}
+
+// ══════════════════════════════════════════════════════
+//  캔버스 초기화
+// ══════════════════════════════════════════════════════
+function initTcards(){
+  [['tc_arch',paintTcardArch],['tc_multi',paintTcardMulti]].forEach(([id,fn])=>{
+    const cv=document.getElementById(id);if(!cv)return;
+    const W=cv.parentElement.clientWidth,H=cv.offsetHeight||200;
+    cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+    const ctx=cv.getContext('2d');ctx.scale(DPR,DPR);fn(ctx,W,H);
+  });
+}
+function initMain(){
+  const cv=document.getElementById('mainCanvas');if(!cv)return;
+  const wrap=cv.parentElement;
+  const W=wrap.clientWidth,H=wrap.clientHeight;
+  cv.width=W*DPR;cv.height=H*DPR;cv.style.width=W+'px';cv.style.height=H+'px';
+  const ctx=cv.getContext('2d');ctx.scale(DPR,DPR);
+  drawMainScene(ctx,W,H);
+}
+
+// ══════════════════════════════════════════════════════
+//  슬라이드 네비게이션
+// ══════════════════════════════════════════════════════
+const TOTAL = 7;
+let curSlide = 0;
+let touchStartX = 0, touchStartY = 0, isDragging = false;
+
+function goSlide(idx){
+  if(idx<0||idx>=TOTAL)return;
+  curSlide=idx;
+  document.getElementById('sliderTrack').style.transform=`translateX(-${idx*100}%)`;
+  // 스텝 바 업데이트
+  document.querySelectorAll('.sb-item').forEach((el,i)=>{
+    el.classList.remove('active','done');
+    if(i===idx)el.classList.add('active');
+    else if(i<idx)el.classList.add('done');
+  });
+  // 카운터
+  document.getElementById('slideCounter').textContent=`${idx+1} / ${TOTAL}`;
+  // 버튼
+  document.getElementById('btnPrev').disabled=idx===0;
+  const btnNext=document.getElementById('btnNext');
+  if(idx===TOTAL-1){
+    btnNext.textContent='📨 제출하기';
+    btnNext.className='btn-nav btn-submit-final';
+    btnNext.onclick=submitForm;
+  } else {
+    btnNext.textContent='다음 →';
+    btnNext.className='btn-nav btn-next';
+    btnNext.onclick=nextSlide;
+  }
+  // 슬라이드 진입시 캔버스 재초기화
+  if(idx===1) setTimeout(initTcards,80);
+  if(idx===2) setTimeout(initMain,80);
+  if(idx===6) setTimeout(()=>{initSigPad('sigPad1');initSigPad('sigPad2');},80);
+  // 견적 확인 슬라이드 진입시 고객 정보 동기화
+  if(idx===5) syncConfirmView();
+  // 스크롤 맨 위로
+  const slide=document.getElementById('slide'+idx);
+  if(slide)slide.scrollTop=0;
+}
+function nextSlide(){goSlide(curSlide+1);}
+function prevSlide(){goSlide(curSlide-1);}
+
+// 터치 스와이프
+const outer=document.getElementById('sliderOuter');
+outer.addEventListener('touchstart',e=>{
+  touchStartX=e.touches[0].clientX;
+  touchStartY=e.touches[0].clientY;
+  isDragging=false;
+},{passive:true});
+outer.addEventListener('touchmove',e=>{
+  const dx=Math.abs(e.touches[0].clientX-touchStartX);
+  const dy=Math.abs(e.touches[0].clientY-touchStartY);
+  if(dx>dy&&dx>10) isDragging=true;
+},{passive:true});
+outer.addEventListener('touchend',e=>{
+  if(!isDragging)return;
+  const diff=touchStartX-e.changedTouches[0].clientX;
+  if(Math.abs(diff)>50){
+    if(diff>0)nextSlide(); else prevSlide();
+  }
+},{passive:true});
+
+// ══════════════════════════════════════════════════════
+//  데이터 / 로직
+// ══════════════════════════════════════════════════════
+const typeNames={arch:'단동 아치형',multi:'연동형'};
+const frameSets={
+  arch:[
+    {mat:'pipe25',icon:'⚙️',name:'25mm 원형 파이프',desc:'소형 단동에 적합, 경제적·경량',badge:'bg',bdtxt:'기본'},
+    {mat:'pipe32',icon:'🔩',name:'32mm 원형 파이프',desc:'강도 높음, 넓은 단동에 권장',badge:'bb',bdtxt:'추천'},
+  ],
+  multi:[
+    {mat:'col60',icon:'⚙️',name:'기둥파이프 60각',desc:'연동형 주기둥, 하중 분산 우수',badge:'bb',bdtxt:'추천'},
+    {mat:'pipe48',icon:'🔩',name:'48mm 원형 파이프',desc:'연동형 서까래·보조 파이프 (기둥 포함)',badge:'bg',bdtxt:'기본'},
+  ]
+};
+const frameLbl={pipe25:'25mm 원형 파이프',pipe32:'32mm 원형 파이프',col60:'기둥파이프 60각',pipe48:'48mm 원형 파이프'};
+const coverLbl={pe:'PE 필름 (0.1~0.15mm)',po:'PO 필름 (0.1~0.15mm)',shade:'차광필름 (불투명)'};
+let sFrame='pipe25',sCover='pe';
+
+function updateDims(){
+  gW=+document.getElementById('sl_w').value;
+  gL=+document.getElementById('sl_l').value;
+  gH=+document.getElementById('sl_h').value;
+  gN=+document.getElementById('sl_n').value;
+  document.getElementById('wv').textContent=gW+'m';
+  document.getElementById('lv').textContent=gL+'m';
+  document.getElementById('hv').textContent=gH+'m';
+  document.getElementById('nv').textContent=gN+'동';
+  document.getElementById('lW').textContent='폭 '+gW+'m';
+  document.getElementById('lL').textContent='길이 '+gL+'m';
+  document.getElementById('lH').textContent='측고 '+gH+'m';
+  const area=gW*gL*gN,py=Math.round(area/3.305);
+  document.getElementById('d_area').textContent=area.toLocaleString();
+  document.getElementById('d_py').textContent=py.toLocaleString();
+  document.getElementById('d_dong').textContent=gN;
+  document.getElementById('s_size').textContent=`폭 ${gW}m × 길이 ${gL}m × 측고 ${gH}m (${gN}동)`;
+  document.getElementById('s_area').textContent=`${area.toLocaleString()}㎡ / ${py.toLocaleString()}평`;
+  calcPrice(); initMain();
+}
+['sl_w','sl_l','sl_h','sl_n'].forEach(id=>document.getElementById(id).addEventListener('input',updateDims));
+
+function updateFrameMats(){
+  const list=document.getElementById('frameMats');
+  const items=frameSets[gType]||frameSets.arch;
+  list.innerHTML=items.map((it,i)=>`
+    <div class="mrow ${i===0?'sel':''}" data-mat="${it.mat}" onclick="selMat('frame',this)">
+      <div class="mradio"></div><div class="micon">${it.icon}</div>
+      <div class="minfo"><div class="mname">${it.name}</div><div class="mdesc">${it.desc}</div></div>
+      <div class="mbadge ${it.badge}">${it.bdtxt}</div>
+    </div>`).join('');
+  sFrame=items[0].mat;
+  document.getElementById('s_frame').textContent=frameLbl[sFrame];
+  const hint=document.getElementById('frame-type-hint');
+  if(hint)hint.textContent=gType==='arch'?'(단동형 선택됨)':'(연동형 선택됨)';
+}
+
+function selectType(el){
+  document.querySelectorAll('.tcard').forEach(c=>c.classList.remove('selected'));
+  el.classList.add('selected');
+  gType=el.dataset.type;
+  document.getElementById('s_type').textContent=typeNames[gType];
+  updateFrameMats(); calcPrice(); initMain();
+}
+
+function selMat(grp,el){
+  el.closest('.mat-list').querySelectorAll('.mrow').forEach(r=>r.classList.remove('sel'));
+  el.classList.add('sel');
+  if(grp==='frame'){sFrame=el.dataset.mat;document.getElementById('s_frame').textContent=frameLbl[sFrame]||sFrame;}
+  else{sCover=el.dataset.mat;document.getElementById('s_cover').textContent=coverLbl[sCover];}
+  calcPrice();
+}
+
+function togOpt(el){
+  el.classList.toggle('on');
+  const names=Array.from(document.querySelectorAll('.oitem.on')).map(o=>o.querySelector('.oname').textContent.slice(3).trim());
+  document.getElementById('s_opts').textContent=names.length?names.join(', '):'없음';
+  calcPrice();
+}
+
+function calcPrice(){
+  const py=(gW*gL*gN)/3.305;
+  let base=py*8;
+  const tm={arch:1,multi:1.15};
+  const fm={pipe25:.88,pipe32:1.0,col60:1.18,pipe48:1.05};
+  const cm={pe:1,po:1.2,shade:.85};
+  base*=(tm[gType]||1)*(fm[sFrame]||1)*(cm[sCover]||1);
+  let ex=0;document.querySelectorAll('.oitem.on').forEach(o=>ex+=+o.dataset.p||0);
+  const lo=Math.round((base+ex)/10)*10,hi=Math.round(lo*1.55/10)*10;
+  document.getElementById('s_price').textContent=`${lo.toLocaleString()} ~ ${hi.toLocaleString()}만원`;
+}
+
+function syncConfirmView(){
+  const get=id=>document.getElementById(id)?.value?.trim()||'—';
+  ['name','phone','region'].forEach(k=>{
+    const v=get('f_'+k);
+    const el=document.getElementById('sig_'+k);if(el)el.textContent=v;
+    const el2=document.getElementById('cv_'+k);if(el2)el2.textContent=v;
+  });
+  const pur=document.getElementById('f_purpose');
+  const el=document.getElementById('cv_purpose');
+  if(el)el.textContent=pur?.value||'—';
+}
+
+// 서명 패드
+function initSigPad(id){
+  const cv=document.getElementById(id);if(!cv)return;
+  const r=cv.parentElement.clientWidth;
+  cv.width=r*DPR;cv.height=110*DPR;
+  cv.style.width=r+'px';cv.style.height='110px';
+  const ctx=cv.getContext('2d');ctx.scale(DPR,DPR);
+  ctx.strokeStyle='#1a3c2a';ctx.lineWidth=2;ctx.lineCap='round';ctx.lineJoin='round';
+  let drawing=false,lx=0,ly=0;
+  function getPos(e){const rect=cv.getBoundingClientRect();const src=e.touches?e.touches[0]:e;return{x:src.clientX-rect.left,y:src.clientY-rect.top};}
+  function start(e){e.preventDefault();drawing=true;const p=getPos(e);lx=p.x;ly=p.y;}
+  function move(e){e.preventDefault();if(!drawing)return;const p=getPos(e);ctx.beginPath();ctx.moveTo(lx,ly);ctx.lineTo(p.x,p.y);ctx.stroke();lx=p.x;ly=p.y;}
+  function end(){drawing=false;}
+  cv.addEventListener('mousedown',start);cv.addEventListener('mousemove',move);
+  cv.addEventListener('mouseup',end);cv.addEventListener('mouseleave',end);
+  cv.addEventListener('touchstart',start,{passive:false});
+  cv.addEventListener('touchmove',move,{passive:false});
+  cv.addEventListener('touchend',end);
+}
+function clearSig(id){const cv=document.getElementById(id);if(!cv)return;cv.getContext('2d').clearRect(0,0,cv.width,cv.height);}
+
+// 제출
+function submitForm(){
+  const name=document.getElementById('f_name').value.trim();
+  const phone=document.getElementById('f_phone').value.trim();
+  if(!name||!phone){
+    alert('고객정보 탭에서 성함과 연락처를 먼저 입력해주세요.');
+    goSlide(0); return;
+  }
+  alert(`✅ 견적 의뢰서가 제출되었습니다!\n\n${name}님, 담당자가 ${phone}으로\n영업일 1~2일 내 연락드리겠습니다. 감사합니다 🌱`);
+}
+
+// 날짜·문서번호
+(function(){
+  const d=new Date();
+  document.getElementById('dateDisplay').textContent=`${d.getFullYear()}.${d.getMonth()+1}.${d.getDate()}`;
+  document.getElementById('docNo').textContent='No. GH-'+d.getFullYear()+String(d.getMonth()+1).padStart(2,'0')+String(d.getDate()).padStart(2,'0')+'-'+Math.floor(Math.random()*900+100);
+  const today=d.toISOString().split('T')[0];
+  ['sig_date1','sig_date2'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=today;});
+})();
+
+// 고객 입력 실시간 반영
+['f_name','f_phone','f_region'].forEach(id=>{
+  document.getElementById(id)?.addEventListener('input',()=>{
+    const k=id.replace('f_','');
+    const v=document.getElementById(id).value.trim()||'—';
+    const s=document.getElementById('sig_'+k);if(s)s.textContent=v;
+    const cv=document.getElementById('cv_'+k);if(cv)cv.textContent=v;
+  });
+});
+
+// 부트
+window.addEventListener('load',()=>{
+  initTcards(); initMain(); calcPrice(); goSlide(0);
+});
+window.addEventListener('resize',()=>{
+  initTcards(); initMain();
+  initSigPad('sigPad1'); initSigPad('sigPad2');
+});
+</script>
+</body>
+</html>
